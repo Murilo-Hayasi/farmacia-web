@@ -1,7 +1,8 @@
 # farmacia-web
 Sistema de farmácia desenvolvido em HTML, CSS e JavaScript, com consumo da API ViaCEP para preenchimento automático de endereço, focado em organização, usabilidade e estrutura frontend escalável.
 
--Sistema de Farmácia — Projeto Integrado II
+❗A aplicação está publicada e acessível em ambiente real:
+🔗 https://project-farmacia-web.vercel.app
 
 Projeto desenvolvido com foco na construção de uma interface web para um sistema de farmácia, aplicando boas práticas de organização, usabilidade e consumo de API externa no frontend.
 
