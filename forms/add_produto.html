@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adicionar Produto</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .div-form {
+            border: 2px solid gray;
+            border-radius: 20px;
+            background-color: white;
+            margin: 1% 5%;
+            padding: 3%;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        }
+        .div-form:hover {
+            transform: translateY(-2px);
+        }
+        a.btn-delete {
+            cursor: pointer;
+            color: red;
+            text-decoration: none;
+        }
+    </style>
+    
+    <script>
+      function mMoeda(event) {
+          var v = (event.target.value).substring(3);
+          v = v.replace(/\D/g, "");
+          v = v.replace(/^0+/g, "");
+          v = v.replace(/(\d{1})(\d{13})$/, "$1.$2");
+          v = v.replace(/(\d{1})(\d{10})$/, "$1.$2");
+          v = v.replace(/(\d{1})(\d{7})$/, "$1.$2");
+          v = v.replace(/(\d{1})(\d{4})$/, "$1.$2");
+          v = v.replace(/(\d{1})(\d{1,1})$/, "$1,$2");
+          event.target.value = "R$ " + v;
+      }
+    </script>
+
+    <script type="text/javascript">
+      var dados = [{id: 1, nome: "Dipirona"}];
+
+      function montarTabela() {
+          let vtbody = document.querySelector('#tb-body');
+          let html = '';
+
+          for (let item of dados) {
+              html += `
+              <tr>
+                  <td><input type="checkbox" data-id="${item.id}"></td>
+                  <td>${item.nome}</td>
+                  <td><a class="btn-delete" onclick="excluirItem(${item.id})">&#9746;</a></td>
+              </tr>
+            `;
+          }
+          vtbody.innerHTML = html;
+      }
+
+      function adicionarItem() {
+          // 1. Pegar referências de todos os inputs
+          let nomeInput = document.getElementById('nome-prod');
+          let codigoInput = document.getElementById('codigo-prod');
+          let categoriaInput = document.getElementById('estado'); // Categoria
+          let qtdAddInput = document.getElementById('qtd-add');
+          let qtdEstoqueInput = document.getElementById('qtd-estoque');
+          let marcaInput = document.getElementById('marca-prod');
+          let precoInput = document.getElementById('preco-prod');
+          let dataInput = document.getElementById('data-nascimento');
+          let descInput = document.getElementById('desc-prod');
+
+          let formularioValido = true;
+
+          // 2. Função auxiliar para validar campo vazio
+          function validarCampo(input) {
+              if (!input.value || input.value.trim() === '') {
+                  input.classList.add('is-invalid');
+                  return false;
+              } else {
+                  input.classList.remove('is-invalid');
+                  return true;
+              }
+          }
+
+          // 3. Validar cada um
+          if (!validarCampo(nomeInput)) formularioValido = false;
+          if (!validarCampo(codigoInput)) formularioValido = false;
+          if (!validarCampo(qtdAddInput)) formularioValido = false;
+          if (!validarCampo(qtdEstoqueInput)) formularioValido = false;
+          if (!validarCampo(marcaInput)) formularioValido = false;
+          if (!validarCampo(precoInput)) formularioValido = false;
+          if (!validarCampo(dataInput)) formularioValido = false;
+          // Descrição é opcional? Se for obrigatória, descomente a linha abaixo:
+          // if (!validarCampo(descInput)) formularioValido = false;
+
+          // Validação específica para o Select (Categoria)
+          if (categoriaInput.value === 'Categoria') {
+              categoriaInput.classList.add('is-invalid');
+              formularioValido = false;
+          } else {
+              categoriaInput.classList.remove('is-invalid');
+          }
+
+          // 4. Se tudo estiver ok, adiciona
+          if (formularioValido) {
+              let novoItem = {
+                  id: new Date().getTime(),
+                  nome: nomeInput.value,
+                  // Você pode salvar os outros dados aqui também se precisar no futuro
+                  codigo: codigoInput.value,
+                  categoria: categoriaInput.value,
+                  qtd: qtdAddInput.value,
+                  preco: precoInput.value
+              }
+
+              dados.push(novoItem);
+              montarTabela();
+
+              // Limpar todos os campos
+              document.querySelector('form').reset();
+              nomeInput.focus();
+          } else {
+              // Se houver erro, foca no primeiro campo inválido (opcional)
+              let primeiroInvalido = document.querySelector('.is-invalid');
+              if(primeiroInvalido) primeiroInvalido.focus();
+          }
+      }
+
+      function excluirItem(idDel) {
+          dados = dados.filter(item => item.id !== idDel);
+          montarTabela();
+      }
+
+      function excluirSelecionados() {
+          let listaCK = document.querySelectorAll('[data-id]');
+          let idsExcluir = [];
+
+          for (let ck of listaCK) {
+              if (ck.checked) {
+                  idsExcluir.push(Number(ck.dataset.id));
+              }
+          }
+
+          dados = dados.filter(item => !idsExcluir.includes(item.id));
+          document.querySelector('#Todos').checked = false;
+          montarTabela();
+      }
+
+      function selecionaTodos() {
+          let listaCK = document.querySelectorAll('[data-id]');
+          let ckPai = document.querySelector('#Todos');
+
+          for (let ck of listaCK) {
+              ck.checked = ckPai.checked;
+          }
+      }
+
+      document.addEventListener('DOMContentLoaded', function () {
+          montarTabela();
+
+          var vbtnAdd = document.querySelector('#btn_add');
+          if(vbtnAdd) {
+              vbtnAdd.addEventListener('click', adicionarItem, false);
+          }
+
+          var vbtnExcSel = document.querySelector('#btnExcluirSelecionados');
+          if(vbtnExcSel) {
+              vbtnExcSel.addEventListener('click', excluirSelecionados, false);
+          }
+
+          var ckPai = document.querySelector('#Todos');
+          if(ckPai) {
+              ckPai.addEventListener('click', selecionaTodos, false);
+          }
+
+          // NOVO: Remove o erro vermelho de QUALQUER campo assim que o usuário interagir
+          var inputsDoForm = document.querySelectorAll('.form-control');
+          inputsDoForm.forEach(function(input) {
+              // Usa 'input' para digitação e 'change' para selects/datas
+              ['input', 'change'].forEach(evt => 
+                  input.addEventListener(evt, function() {
+                      if(this.value.trim() !== "" && this.value !== "Categoria") {
+                          this.classList.remove('is-invalid');
+                      }
+                  })
+              );
+          });
+
+      }, false);
+    </script>
+</head>
+
+<body style="background-color: rgb(194, 199, 255)">
+    <div class="div-form">
+        <h2 style="text-align: center; color:rgb(0, 132, 255); font-weight: bold;">Adicionar Produto</h2>
+        <br />
+        <form onsubmit="event.preventDefault(); adicionarItem();">
+            <div class="row">
+                <div class="col">
+                    <input type="text" class="form-control" placeholder="Nome do Produto" id="nome-prod" aria-label="Nome do Produto" required>
+                    <div class="invalid-feedback">
+                        O nome do produto deve ser preenchido!
+                    </div>
+                </div>
+                <div class="col">
+                    <input type="text" class="form-control" placeholder="Código do Produto" id="codigo-prod" aria-label="Código do Produto">
+                    <div class="invalid-feedback">
+                        Informe o código do produto.
+                    </div>
+                </div>
+            </div>
+            <br />
+            <div class="col-sm2">
+                <div class="form-group">
+                    <select class="form-control" id="estado">
+                        <option selected>Categoria</option>
+                        <option value="medicamento">Medicamentos</option>
+                        <option value="suplemento">Suplementos</option>
+                        <option value="infantil">Infantil</option>
+                        <option value="cosmetico">Cosméticos</option>
+                    </select>
+                    <div class="invalid-feedback">
+                        Selecione uma categoria válida.
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col">
+                        <input type="number" min="0" max="1000" class="form-control" id="qtd-add" placeholder="Quantidade a Adicionar" aria-label="Quantidade a Adicionar">
+                        <div class="invalid-feedback">
+                            Informe a quantidade a adicionar.
+                        </div>
+                    </div>
+                    <div class="col">
+                        <input type="number" minlength="0" maxlength="1000" class="form-control" id="qtd-estoque" placeholder="Quantidade no Estoque" aria-label="Quantidade no Estoque">
+                        <div class="invalid-feedback">
+                            Informe a quantidade em estoque.
+                        </div>
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col">
+                        <input type="text" class="form-control" placeholder="Marca" id="marca-prod" aria-label="Marca">
+                        <div class="invalid-feedback">
+                            Informe a marca do produto.
+                        </div>
+                    </div>
+                    <div class="col">
+                        <input type="text" class="form-control" placeholder="Preço" id="preco-prod" aria-label="Preço" onkeyup="mMoeda(event)">
+                        <div class="invalid-feedback">
+                            Informe o preço.
+                        </div>
+                    </div>
+                </div>
+                <br />
+                <label for="data-nascimento" class="form-label">Data do Cadastro</label>
+                <input type="date" class="form-control" id="data-nascimento">
+                <div class="invalid-feedback">
+                    Selecione a data do cadastro.
+                </div>
+                <br />
+                
+                <textarea class="form-control" id="desc-prod" placeholder="Descrição" rows="5" cols="10"></textarea>
+                <br />
+                <div style="text-align: center;">
+                    <button type="button" class="btn btn-primary" id="btn_add"> Adicionar </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <br />
+
+    <div style="margin: 1% 5%;">
+        <table class="table table-bordered table-striped bg-white" id="grid">
+            <thead>
+                <tr>
+                    <th scope="col" style="width: 50px;"><input type="checkbox" id="Todos"></th>
+                    <th scope="col">Nome</th>
+                    <th scope="col" style="width: 100px; text-align: center;">Excluir</th>
+                </tr>
+            </thead>
+            <tbody id="tb-body"></tbody>
+        </table>
+        <br />
+        <div style="text-align: center;">
+            <button type="button" class="btn btn-danger" id="btnExcluirSelecionados">
+                Excluir Selecionados
+            </button>
+        </div>
+    </div>
+</body>
+</html>

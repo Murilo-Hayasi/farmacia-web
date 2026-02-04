@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adicionar Empresa</title>
+    <link rel="shortcut icon" type="image/x-icon" href="+ico.png">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    
+    <style>
+        .div-form {
+            border: 2px solid gray;
+            border-radius: 20px;
+            background-color: white;
+            margin: 1% 5%;
+            padding: 3%;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        }
+        .div-form:hover {
+            transform: translateY(-2px);
+        }
+        a.btn-delete {
+            cursor: pointer;
+            color: red;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+    </style>
+
+    <script>
+      // --- MÁSCARAS ---
+      function mascaraTelefone(campo) {
+        let v = campo.value.replace(/\D/g, "");
+        if (v.length > 11) v = v.slice(0, 11);
+        if (v.length > 10) v = v.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3");
+        else if (v.length > 6) v = v.replace(/(\d{2})(\d{4})(\d+)/, "($1) $2-$3");
+        else if (v.length > 2) v = v.replace(/(\d{2})(\d+)/, "($1) $2");
+        campo.value = v;
+      }
+
+      function mascaraCEP(campo) {
+        let v = campo.value.replace(/\D/g, "");
+        if (v.length > 8) v = v.slice(0, 8);
+        if (v.length > 5) v = v.replace(/(\d{5})(\d+)/, "$1-$2");
+        campo.value = v;
+      }
+
+      function mascaraCNPJ(campo) {
+        let v = campo.value.replace(/\D/g, "");
+        if (v.length > 14) v = v.slice(0, 14);
+        if (v.length > 13) v = v.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, "$1.$2.$3/$4-$5");
+        else if (v.length > 8) v = v.replace(/(\d{2})(\d{3})(\d+)/, "$1.$2.$3");
+        else if (v.length > 2) v = v.replace(/(\d{3})(\d+)/, "$1.$2");
+        campo.value = v;
+      }
+    </script>
+
+    <script type="text/javascript">
+      var dados = [
+          {id: 1, nome: "Tech Solutions LTDA", cnpj: "12.345.678/0001-90", telefone: "(11) 99999-9999"}
+      ];
+
+      function montarTabela() {
+          let vtbody = document.querySelector('#tb-body');
+          let html = '';
+
+          for (let item of dados) {
+              html += `
+              <tr>
+                  <td><input type="checkbox" data-id="${item.id}"></td>
+                  <td>${item.nome}</td>
+                  <td>${item.cnpj}</td>
+                  <td>${item.telefone}</td>
+                  <td style="text-align: center;"><a class="btn-delete" onclick="excluirItem(${item.id})">&#9746;</a></td>
+              </tr>
+            `;
+          }
+          vtbody.innerHTML = html;
+      }
+
+      // Função auxiliar para validar campo vazio
+      function validarCampo(elemento) {
+          if (!elemento) return false;
+          if (elemento.value.trim() === '') {
+              elemento.classList.add('is-invalid');
+              return false;
+          } else {
+              elemento.classList.remove('is-invalid');
+              return true;
+          }
+      }
+
+      function adicionarItem() {
+          // Selecionando todos os campos
+          let nomeInput = document.querySelector('#nome-empresa');
+          let cnpjInput = document.querySelector('#cnpj');
+          let fantasiaInput = document.querySelector('#nome-fantasia');
+          let repInput = document.querySelector('#representante');
+          let foneInput = document.querySelector('#fone');
+          let emailInput = document.querySelector('#email');
+          let dataInput = document.querySelector('#data-cadastro');
+          
+          // Endereço
+          let ruaInput = document.querySelector('#rua');
+          let numInput = document.querySelector('#numero');
+          let bairroInput = document.querySelector('#bairro');
+          let cidadeInput = document.querySelector('#cidade');
+          let cepInput = document.querySelector('#cep');
+          let estadoInput = document.querySelector('#estado');
+
+          let formValido = true;
+
+          // Validações Genéricas (Vazio)
+          formValido &= validarCampo(nomeInput);
+          formValido &= validarCampo(fantasiaInput);
+          formValido &= validarCampo(repInput);
+          formValido &= validarCampo(dataInput);
+          formValido &= validarCampo(ruaInput);
+          formValido &= validarCampo(numInput);
+          formValido &= validarCampo(bairroInput);
+          formValido &= validarCampo(cidadeInput);
+
+          // Validação CNPJ (Tamanho)
+          if (cnpjInput.value.length < 18) {
+              cnpjInput.classList.add('is-invalid');
+              formValido = false;
+          } else {
+              cnpjInput.classList.remove('is-invalid');
+          }
+
+          // Validação Telefone (Mínimo de caracteres para (XX) XXXX-XXXX)
+          if (foneInput.value.length < 14) {
+              foneInput.classList.add('is-invalid');
+              formValido = false;
+          } else {
+              foneInput.classList.remove('is-invalid');
+          }
+
+          // Validação Email (Básica)
+          if (emailInput.value.indexOf("@") === -1 || emailInput.value.indexOf(".") === -1) {
+              emailInput.classList.add('is-invalid');
+              formValido = false;
+          } else {
+              emailInput.classList.remove('is-invalid');
+          }
+
+          // Validação CEP
+          if (cepInput.value.length < 9) {
+              cepInput.classList.add('is-invalid');
+              formValido = false;
+          } else {
+              cepInput.classList.remove('is-invalid');
+          }
+
+          // Validação Select (Estado)
+          if (estadoInput.value === "Estado") {
+              estadoInput.classList.add('is-invalid');
+              formValido = false;
+          } else {
+              estadoInput.classList.remove('is-invalid');
+          }
+
+          if (formValido) {
+              let novoItem = {
+                  id: new Date().getTime(),
+                  nome: nomeInput.value,
+                  cnpj: cnpjInput.value,
+                  telefone: foneInput.value
+              }
+              
+              dados.push(novoItem);
+              montarTabela();
+              
+              // Limpar formulário (opcional: resetar todos os campos)
+              document.querySelector('form').reset();
+              nomeInput.focus();
+          } else {
+          }
+      }
+
+      function excluirItem(idDel) {
+          dados = dados.filter(item => item.id !== idDel);
+          montarTabela();
+      }
+
+      function excluirSelecionados() {
+          let listaCK = document.querySelectorAll('[data-id]');
+          let idsExcluir = [];
+
+          for (let ck of listaCK) {
+              if (ck.checked) idsExcluir.push(Number(ck.dataset.id));
+          }
+
+
+          dados = dados.filter(item => !idsExcluir.includes(item.id));
+          document.querySelector('#Todos').checked = false;
+          montarTabela();
+      }
+
+      function selecionaTodos() {
+          let listaCK = document.querySelectorAll('[data-id]');
+          let ckPai = document.querySelector('#Todos');
+          for (let ck of listaCK) {
+              ck.checked = ckPai.checked;
+          }
+      }
+
+      document.addEventListener('DOMContentLoaded', function () {
+          montarTabela();
+
+          // Botões
+          let btnCadastrar = document.querySelector('#btn_cadastrar');
+          if(btnCadastrar) btnCadastrar.addEventListener('click', adicionarItem);
+
+          let btnExcluir = document.querySelector('#btnExcluirSelecionados');
+          if(btnExcluir) btnExcluir.addEventListener('click', excluirSelecionados);
+
+          let ckTodos = document.querySelector('#Todos');
+          if(ckTodos) ckTodos.addEventListener('click', selecionaTodos);
+
+          // Remove erro ao digitar em qualquer input/select do formulário
+          let inputs = document.querySelectorAll('.form-control');
+          inputs.forEach(input => {
+              input.addEventListener('input', function() {
+                  if(this.value.trim() !== "" && this.value !== "Estado") {
+                      this.classList.remove('is-invalid');
+                  }
+              });
+              // Para selects
+              input.addEventListener('change', function() {
+                  if(this.value !== "Estado") {
+                      this.classList.remove('is-invalid');
+                  }
+              });
+          });
+      });
+    </script>
+</head>
+
+<body style="background-color: rgb(194, 199, 255)">
+    <div class="div-form">
+        <h2 style="text-align: center; color:rgb(0, 132, 255); font-weight: bold;">Cadastrar Empresa</h2>
+        <br />
+        <form onsubmit="event.preventDefault(); adicionarItem();">
+            <div class="row">
+                <div class="col">
+                    <input type="text" class="form-control" placeholder="Nome/Razão Social" id="nome-empresa" >
+                    <div class="invalid-feedback">Razão Social é obrigatória.</div>
+                </div>
+                <div class="col">
+                    <input type="text" class="form-control" placeholder="CNPJ" id="cnpj" oninput="mascaraCNPJ(this)" >
+                    <div class="invalid-feedback">CNPJ incompleto.</div>
+                </div>
+            </div>
+
+            <br />
+
+            <div class="row">
+                <div class="col">
+                    <input type="text" class="form-control" placeholder="Nome Fantasia" id="nome-fantasia" >
+                    <div class="invalid-feedback">Nome Fantasia é obrigatório.</div>
+                </div>
+                <div class="col">
+                    <input type="text" class="form-control" placeholder="Representante Legal" id="representante" >
+                    <div class="invalid-feedback">Representante é obrigatório.</div>
+                </div>
+            </div>
+
+            <br />
+
+            <div class="row">
+                <div class="col">
+                    <input type="text" class="form-control" placeholder="Telefone" maxlength="15" id="fone" oninput="mascaraTelefone(this)" >
+                    <div class="invalid-feedback">Telefone inválido.</div>
+                </div>
+                <div class="col">
+                    <input type="email" class="form-control" placeholder="E-mail" id="email" >
+                    <div class="invalid-feedback">E-mail inválido.</div>
+                </div>
+            </div>
+
+            <br />
+
+            <label for="data-cadastro" class="form-label">Data de Cadastro</label>
+            <input type="date" class="form-control" id="data-cadastro" >
+            <div class="invalid-feedback">Data é obrigatória.</div>
+
+            <br />
+
+            <div class="row g-3">
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" id="rua" placeholder="Rua" >
+                    <div class="invalid-feedback">Rua obrigatória.</div>
+                </div>
+                <div class="col-sm">
+                    <input type="text" class="form-control" id="numero" placeholder="Número" >
+                    <div class="invalid-feedback">Número obrigatório.</div>
+                </div>
+                <div class="col-sm">
+                    <input type="text" class="form-control" id="bairro" placeholder="Bairro" >
+                    <div class="invalid-feedback">Bairro obrigatório.</div>
+                </div>
+                <div class="col-sm3">
+                    <input type="text" class="form-control" id="cidade" placeholder="Cidade" >
+                    <div class="invalid-feedback">Cidade obrigatória.</div>
+                </div>
+                <div class="col-sm">
+                    <input type="text" class="form-control" id="cep" placeholder="CEP" oninput="mascaraCEP(this)" >
+                    <div class="invalid-feedback">CEP incompleto.</div>
+                </div>
+                <div class="col-sm2">
+                    <select class="form-control" id="estado">
+                        <option selected value="Estado">Estado</option>
+                        <option value="SP">São Paulo</option>
+                        <option value="RJ">Rio de Janeiro</option>
+                        <option value="MG">Minas Gerais</option>
+                        </select>
+                    <div class="invalid-feedback">Selecione um estado.</div>
+                </div>
+            </div>
+
+            <br />
+
+            <textarea class="form-control" placeholder="Descrição (Opcional)" rows="5"></textarea>
+
+            <br />
+
+            <div style="text-align: center;">
+                <button type="submit" class="btn btn-primary" id="btn_cadastrar"> Cadastrar </button>
+            </div>
+        </form>
+    </div>
+    <br />
+
+    <div style="margin: 1% 5%;">
+        <table class="table table-bordered table-striped bg-white" id="grid">
+            <thead>
+                <tr>
+                    <th scope="col" style="width: 50px;"><input type="checkbox" id="Todos"></th>
+                    <th scope="col">Razão Social</th>
+                    <th scope="col">CNPJ</th>
+                    <th scope="col">Telefone</th>
+                    <th scope="col" style="width: 100px; text-align: center;">Excluir</th>
+                </tr>
+            </thead>
+            <tbody id="tb-body"></tbody>
+        </table>
+        <br />
+        <div style="text-align: center;">
+            <button type="button" class="btn btn-danger" id="btnExcluirSelecionados">
+                Excluir Selecionados
+            </button>
+        </div>
+    </div>
+
+</body>
+</html>

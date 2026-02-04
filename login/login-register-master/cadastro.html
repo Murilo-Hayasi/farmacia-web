@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Criar Conta</title>
+  <link rel="shortcut icon" type="image/x-icon" href="+ico.png">
+  <link rel="stylesheet" href="login.css">
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <script src="assets/js/mascara.js" defer></script>
+  <script src="assets/js/cadastro.js" defer></script>
+
+  <style type="text/css" rel="stylesheet">
+    .div-form {
+      border: 2px 2px 2px 2px gray;
+      border-radius: 20px 20px 20px 20px;
+      background-color: white;
+      margin: 10% 10% 10% 10%;
+      padding: 3% 3% 3% 3%;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .div-form:hover {
+      transform: translateY(-2px);
+    }
+  </style>
+
+  <script defer>
+    // Busca automática do endereço pelo CEP
+    async function buscarCEP() {
+      const cep = document.getElementById('cep').value.replace(/\D/g, '');
+      if (cep.length === 8) {
+        try {
+          const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+          const data = await response.json();
+          if (!data.erro) {
+            document.getElementById('rua').value = data.logradouro;
+            document.getElementById('bairro').value = data.bairro;
+            document.getElementById('cidade').value = data.localidade;
+            document.getElementById('uf').value = data.uf;
+          }
+        } catch (e) {
+          console.error("Erro ao buscar CEP:", e);
+        }
+      }
+    }
+
+     function enviardados() {
+            event.preventDefault();
+
+            var nome = document.querySelector("#tx_nome");
+            var sobrenome = document.querySelector("#tx_sobrenome");
+            var email = document.querySelector("#tx_email");
+            var senha = document.querySelector("#tx_senha");
+            var confirma_senha = document.querySelector("#tx_conf_senha");
+            var rg = document.querySelector("#tx_rg");
+            var cpf = document.querySelector("#tx_cpf");
+            var fone = document.querySelector("#tx_fone");
+
+
+            var correto = true;
+
+            if (nome.value.length < 3) {
+                nome.value = ""; // Limpa o campo.
+                nome.setAttribute('placeholder', 'Preencha o NOME corretamente!');
+                nome.style.border = "solid 2px red";
+                correto = false; // Marca a validação como FALHA.
+            }
+
+            if (nome.value.length < 3) {
+                sobrenome.value = ""; // Limpa o campo.
+                sobrenome.setAttribute('placeholder', 'Preencha o SOBRENOME corretamente!');
+                sobrenome.style.border = "solid 2px red";
+                correto = false; // Marca a validação como FALHA.
+            }
+
+            // --- VALIDAÇÃO DO E-MAIL ---
+            var atpos = email.value.indexOf("@");
+            var dotpos = email.value.lastIndexOf(".");
+
+            if (atpos < 1 || dotpos < atpos + 2 || dotpos + 2 >= email.length) {
+                email.value = ""; // Limpa o campo.
+                email.setAttribute('placeholder', 'Preencha um E-MAIL válido!');
+                email.style.border = "solid 2px red";
+                correto = false; // Marca a validação como FALHA.
+            }
+
+            //CPF
+            if (cpf.value.length < 11) {
+                cpf.value = ""; // Limpa o campo.
+                cpf.setAttribute('placeholder', 'Insira um CPF válido!');
+                cpf.style.border = "solid 2px red";
+                correto = false; // Marca a validação como FALHA.
+            }
+
+            //RG
+              if (rg.value.length < 9) {
+                rg.value = ""; // Limpa o campo.
+                rg.setAttribute('placeholder', 'Insira um RG válido!');
+                rg.style.border = "solid 2px red";
+                correto = false; // Marca a validação como FALHA.
+            }
+
+            //Telefone
+            if (fone.value.length < 11) {
+                fone.value = ""; // Limpa o campo.
+                fone.setAttribute('placeholder', 'Insira um TELEFONE válido!');
+                fone.style.border = "solid 2px red";
+                correto = false; // Marca a validação como FALHA.
+            }
+
+
+            //Validar Senha
+            if (senha.value.length < 8) {
+                senha.value = ""; // Limpa o campo.
+                senha.setAttribute('placeholder', 'A SENHA precisa ter no mínimo 8 dígitos');
+                senha.style.border = "solid 2px red";
+                correto = false; // Marca a validação como FALHA.
+            }
+
+
+            //Confirmar Senha
+            if(confirma_senha.value!=senha.value) {
+                confirma_senha.value = ""; // Limpa o campo.
+                confirma_senha.setAttribute('placeholder', 'A SENHA está diferente');
+                confirma_senha.style.border = "solid 2px red";
+                correto = false; // Marca a validação como FALHA.
+            }
+
+        }
+        </script>
+        <script type="text/javascript">
+
+        var dados = [{id: 1, nome: "João"}];
+
+      function montarTabela() {
+          let vtbody = document.querySelector('#tb-body');
+          let html = '';
+
+          for (let item of dados) {
+              html += `
+              <tr>
+                  <td><input type="checkbox" data-id="${item.id}"></td>
+                  <td>${item.nome}</td>
+                  <td><a class="btn-delete" onclick="excluirItem(${item.id})">&#9746;</a></td>
+              </tr>
+            `;
+          }
+          vtbody.innerHTML = html;
+      }
+
+            function validarCampo(elemento) {
+          if (!elemento) return false;
+          if (elemento.value.trim() === '') {
+              elemento.classList.add('is-invalid');
+              return false;
+          } else {
+              elemento.classList.remove('is-invalid');
+              return true;
+          }
+      }
+
+         function adicionarItem() {
+          // 1. Pegar referências de todos os inputs
+          let nomeInput = document.querySelector('#tx_nome');
+          let sobrenomeInput = document.querySelector('#tx_sobrenome');
+          let cpfInput = document.querySelector('#tx_cpf');
+          let rgInput = document.querySelector('#tx_rg');
+          let foneInput = document.querySelector('#tx_fone');
+          let emailInput = document.querySelector('#tx_email');
+          let dataInput = document.querySelector('#data-nascimento');
+          let senhaInput = document.querySelector('#tx_senha');
+          let confSenhaInput = document.querySelector('#tx_conf_senha');
+          let ruaInput = document.querySelector('#rua');
+          let numInput = document.querySelector('#num');
+          let bairroInput = document.querySelector('#bairro');
+          let cidadeInput = document.querySelector('#cidade');
+          let cepInput = document.querySelector('#cep');
+          let ufInput = document.querySelector('#uf');
+
+          let formValido = true;
+
+           formValido &= validarCampo(nomeInput);
+          formValido &= validarCampo(sobrenomeInput);
+          formValido &= validarCampo(cpfInput);
+          formValido &= validarCampo(rgInput);
+          formValido &= validarCampo(foneInput);
+          formValido &= validarCampo(emailInput);
+          formValido &= validarCampo(dataInput);
+          formValido &= validarCampo(senhaInput);
+          formValido &= validarCampo(confSenhaInput);
+          formValido &= validarCampo(ruaInput);
+          formValido &= validarCampo(numInput);
+          formValido &= validarCampo(bairroInput);
+          formValido &= validarCampo(cidadeInput);
+          formValido &= validarCampo(cepInput);
+          formValido &= validarCampo(ufInput);
+
+          // Validação CPF (Tamanho)
+          if (cpfInput.value.length < 14) {
+              cpfInput.classList.add('is-invalid');
+              formValido = false;
+          } else {
+              cpfInput.classList.remove('is-invalid');
+          }
+
+          // Validação Telefone (Mínimo de caracteres para (XX) XXXX-XXXX)
+          if (foneInput.value.length < 14) {
+              foneInput.classList.add('is-invalid');
+              formValido = false;
+          } else {
+              foneInput.classList.remove('is-invalid');
+          }
+
+          // Validação Email (Básica)
+          if (emailInput.value.indexOf("@") === -1 || emailInput.value.indexOf(".") === -1) {
+              emailInput.classList.add('is-invalid');
+              formValido = false;
+          } else {
+              emailInput.classList.remove('is-invalid');
+          }
+
+          // Validação CEP
+          if (cepInput.value.length < 9) {
+              cepInput.classList.add('is-invalid');
+              formValido = false;
+          } else {
+              cepInput.classList.remove('is-invalid');
+          }
+
+          // Validação Select (Estado)
+          if (estadoInput.value === "Estado") {
+              estadoInput.classList.add('is-invalid');
+              formValido = false;
+          } else {
+              estadoInput.classList.remove('is-invalid');
+          }
+
+          if (formValido) {
+              let novoItem = {
+                  id: new Date().getTime(),
+                  nome: nomeInput.value
+              }
+              
+              dados.push(novoItem);
+              montarTabela();
+              
+              // Limpar formulário (opcional: resetar todos os campos)
+              document.querySelector('form').reset();
+              nomeInput.focus();
+          } else {
+          }
+      }
+
+      function excluirItem(idDel) {
+          dados = dados.filter(item => item.id !== idDel);
+          montarTabela();
+      }
+
+      function excluirSelecionados() {
+          let listaCK = document.querySelectorAll('[data-id]');
+          let idsExcluir = [];
+
+          for (let ck of listaCK) {
+              if (ck.checked) {
+                  idsExcluir.push(Number(ck.dataset.id));
+              }
+          }
+
+          dados = dados.filter(item => !idsExcluir.includes(item.id));
+          document.querySelector('#Todos').checked = false;
+          montarTabela();
+      }
+
+      function selecionaTodos() {
+          let listaCK = document.querySelectorAll('[data-id]');
+          let ckPai = document.querySelector('#Todos');
+
+          for (let ck of listaCK) {
+              ck.checked = ckPai.checked;
+          }
+      }
+
+      document.addEventListener('DOMContentLoaded', function () {
+          montarTabela();
+
+          var vbtnAdd = document.querySelector('#btn_add');
+          if(vbtnAdd) {
+              vbtnAdd.addEventListener('click', adicionarItem, false);
+          }
+
+          var vbtnExcSel = document.querySelector('#btnExcluirSelecionados');
+          if(vbtnExcSel) {
+              vbtnExcSel.addEventListener('click', excluirSelecionados, false);
+          }
+
+          var ckPai = document.querySelector('#Todos');
+          if(ckPai) {
+              ckPai.addEventListener('click', selecionaTodos, false);
+          }
+
+          // NOVO: Remove o erro vermelho de QUALQUER campo assim que o usuário interagir
+          var inputsDoForm = document.querySelectorAll('.form-control');
+          inputsDoForm.forEach(function(input) {
+              // Usa 'input' para digitação e 'change' para selects/datas
+              ['input', 'change'].forEach(evt => 
+                  input.addEventListener(evt, function() {
+                      if(this.value.trim() !== "" && this.value !== "Categoria") {
+                          this.classList.remove('is-invalid');
+                      }
+                  })
+              );
+          });
+
+      }, false);
+
+  </script>
+</head>
+
+<body style="background-color: rgb(194, 199, 255)">
+  <div class="div-form">
+  <h2 style="text-align: center; color:rgb(0, 132, 255); font-weight: bold;">Criar Conta</h2>
+  <br/>
+    <form onsubmit="event.preventDefault(); adicionarItem();">
+        <div class="row">
+  <div class="col">
+    <input type="text" class="form-control" placeholder="Nome" aria-label="Nome" id="tx_nome" required>
+  </div>
+  <div class="col">
+    <input type="text" class="form-control" placeholder="Sobrenome" aria-label="Sobrenome" id="tx_sobrenome" required>
+  </div>
+</div>
+ 
+<br/>
+
+<div class="row">
+  <div class="col">
+    <input type="text" class="form-control" placeholder="CPF" aria-label="CPF" maxlength="14" id="tx_cpf" oninput="mascaraCPF(this)" onblur="validarCPF()" required>
+  </div>
+  <div class="col">
+    <input type="text" class="form-control" placeholder="RG" aria-label="RG" id="tx_rg" oninput="mascaraRG(this)"required>
+  </div>
+</div>
+
+<br/>
+
+<div class="row">
+  <div class="col">
+    <input type="text" class="form-control" placeholder="Telefone" aria-label="Telefone" maxlength="15" id="tx_fone" oninput="mascaraTelefone(this)" required>
+  </div>
+  <div class="col">
+    <input type="text" class="form-control" placeholder="E-mail" aria-label="E-mail" id="tx_email" required>
+  </div>
+</div>
+
+<br/>
+
+<label for="data-nascimento" class="form-label">Data de Nascimento</label>
+<input type="date" class="form-control" id="data-nascimento" required>
+
+<br/>
+
+<div class="row">
+  <div class="col">
+    <input type="password" id="senha" class="form-control" placeholder="Senha" aria-label="Senha" id="tx_senha" required>
+  </div>
+  <div class="col">
+    <input type="password" id="confirmaSenha" class="form-control" placeholder="Confirmar Senha" aria-label="Confirmar Senha" id="tx_conf_senha" required>
+  </div>
+</div>
+
+<br/>
+
+<div class="row g-3">
+  <div class="col-sm-3">
+    <input type="text" class="form-control" id="rua" placeholder="Rua" aria-label="Rua" required>
+  </div>
+  <div class="col-sm">
+    <input type="text" class="form-control" id="num" placeholder="Número" aria-label="Número" required>
+  </div>
+   <div class="col-sm">
+    <input type="text" class="form-control" id="bairro" placeholder="Bairro" aria-label="Bairro" required>
+  </div>
+    <div class="col-sm3">
+    <input type="text" class="form-control" id="cidade" placeholder="Cidade" aria-label="Cidade" required>
+  </div>
+    <div class="col-sm">
+    <input type="text" class="form-control" id="cep" placeholder="CEP" aria-label="CEP" oninput="mascaraCEP(this)" onblur="buscarCEP(this)" required>
+  </div>
+    <div class="col-sm2">
+    <select class="form-control" id="uf">
+  <option selected>Estado.</option>
+  <option value="AC">Acre</option>
+  <option value="AL">Alagoas</option>
+  <option value="AP">Amapá</option>
+  <option value="AM">Amazonas</option>
+  <option value="BA">Bahia</option>
+  <option value="CE">Ceará</option>
+  <option value="DF">Distrito Federal</option>
+  <option value="ES">Espírito Santo</option>
+  <option value="GO">Goiás</option>
+  <option value="MA">Maranhão</option>
+  <option value="MT">Mato Grosso</option>
+  <option value="MS">Mato Grosso do Sul</option>
+  <option value="MG">Minas Gerais</option>
+  <option value="PA">Pará</option>
+  <option value="PB">Paraíba</option>
+  <option value="PR">Paraná</option>
+  <option value="PE">Pernambuco</option>
+  <option value="PI">Piauí</option>
+  <option value="RJ">Rio de Janeiro</option>
+  <option value="RN">Rio Grande do Norte</option>
+  <option value="RS">Rio Grande do Sul</option>
+  <option value="RO">Rondônia</option>
+  <option value="RR">Roraima</option>
+  <option value="SC">Santa Catarina</option>
+  <option value="SP">São Paulo</option>
+  <option value="SE">Sergipe</option>
+  <option value="TO">Tocantins</option>
+    </select>
+  </div>
+</div>
+
+<br/>
+<div style="text-align: center;">
+<button type="button" class="btn btn-primary" id="btn_add">  Criar Conta  </button>
+</div>
+    </form>
+    <br />
+        <div style="margin: 1% 5%;">
+        <table class="table table-bordered table-striped bg-white" id="grid">
+            <thead>
+                <tr>
+                    <th scope="col" style="width: 50px;"><input type="checkbox" id="Todos"></th>
+                    <th scope="col">Nome</th>
+                    <th scope="col" style="width: 100px; text-align: center;">Excluir</th>
+                </tr>
+            </thead>
+            <tbody id="tb-body"></tbody>
+        </table>
+        <br />
+        <div style="text-align: center;">
+            <button type="button" class="btn btn-danger" id="btnExcluirSelecionados">
+                Excluir Selecionados
+            </button>
+        </div>
+    </div>
+    </div>
+</body>
+</html>
